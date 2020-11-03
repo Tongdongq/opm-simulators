@@ -82,6 +82,16 @@ namespace bda
         } else if (opencl_ilu_reorder == ILUReorder::GRAPH_COLORING) {
             out << "BILU0 reordering strategy: " << "graph_coloring\n";
             findGraphColoring<block_size>(mat->colIndices, mat->rowPointers, CSCRowIndices, CSCColPointers, mat->Nb, mat->Nb, mat->Nb, &numColors, toOrder, fromOrder, rowsPerColor);
+        } else if (opencl_ilu_reorder == ILUReorder::NONE) {
+            out << "BILU0 reordering strategy: none\n";
+            numColors = Nb;
+            for(int i = 0; i < Nb; ++i){
+                rowsPerColor.emplace_back(1);
+            }
+            for(int i = 0; i < Nb; ++i){
+                toOrder[i] = i;
+                fromOrder[i] = i;
+            }
         } else {
             OPM_THROW(std::logic_error, "Error ilu reordering strategy not set correctly\n");
         }
