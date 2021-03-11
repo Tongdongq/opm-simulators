@@ -433,15 +433,19 @@ namespace bda
                     if(wiId < valsPerBlock){
                         localSum[wiId] += localSum[wiId + valsPerBlock];
                     }
+                }
 
-                    b = wiId/valsPerBlock + val_pointers[wgId];
+                barrier(CLK_LOCAL_MEM_FENCE);
 
+                for(unsigned int stride = 2; stride > 0; stride >>= 1){
                     if(c == 0 && wiId < valsPerBlock){
-                        for(unsigned int stride = 2; stride > 0; stride >>= 1){
-                            localSum[wiId] += localSum[wiId + stride];
-                        }
-                        z1[r] = localSum[wiId];
+                        localSum[wiId] += localSum[wiId + stride];
                     }
+                    barrier(CLK_LOCAL_MEM_FENCE);
+                }
+
+                if(c == 0 && wiId < valsPerBlock){
+                    z1[r] = localSum[wiId];
                 }
 
                 barrier(CLK_LOCAL_MEM_FENCE);
